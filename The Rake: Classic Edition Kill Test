@@ -1,0 +1,171 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local CloseButton = Instance.new("TextButton")
+local ScrollFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+local UserInputService = game:GetService("UserInputService")
+
+-- [REMOVE ANTI CHEAT]
+local anticheat = game:GetService("ReplicatedStorage"):FindFirstChild("Anticheat")
+if anticheat then
+    anticheat:Destroy()
+end
+
+-- Списки предметов из твоих скриншотов
+local basicItems = {
+    "Ban Hammer", "Boomshakalaka", "Fissch", "Golden Fissch", 
+    "Head Lamp", "Health Coil", "Rake Trap", "Speed Coil", 
+    "Stamina Coil", "Vest", "Vitamins", "Voltaged StunStick"
+}
+
+local specialItems = {
+    "BRUH BAR", "Blood Claws", "Blood Reaper", "Blood Stun Stick", 
+    "CRAZY BRUH BAR", "CRUCIBLE", "Claws", "Corrupted Blade", 
+    "Corrupted Coil", "DARKSEED", "Dark Blade", "EERIE", 
+    "FROZEN CRUCIBLE", "Final Vest", "Frozen Axe", "Ghost Drink", 
+    "Ghost Trap", "Hell-Fire Vest", "Monster Rake Trap", "Nightmare Drink"
+}
+
+-- [ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ]
+local targetSpeed = 16
+local speedEnabled = false
+
+-- [ЦИКЛ СКОРОСТИ]
+task.spawn(function()
+    while task.wait(0.1) do
+        local player = game:GetService("Players").LocalPlayer
+        local char = player.Character
+        if char and char:FindFirstChild("Humanoid") then
+            if speedEnabled then
+                char.Humanoid.WalkSpeed = targetSpeed
+            elseif char.Humanoid.WalkSpeed == targetSpeed then
+                char.Humanoid.WalkSpeed = 16
+            end
+        end
+    end
+end)
+
+-- GUI Setup
+ScreenGui.Parent = game:GetService("CoreGui")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -225)
+MainFrame.Size = UDim2.new(0, 380, 0, 450)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame)
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "ahh op menu (INS)"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 20
+Title.BackgroundTransparency = 1
+
+CloseButton.Parent = MainFrame
+CloseButton.Position = UDim2.new(1, -35, 0, 10)
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Text = "X"
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(1,0)
+CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+ScrollFrame.Parent = MainFrame
+ScrollFrame.Size = UDim2.new(1, -20, 1, -70)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 60)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 2500)
+ScrollFrame.ScrollBarThickness = 4
+
+UIListLayout.Parent = ScrollFrame
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Padding = UDim.new(0, 8)
+
+-- Настройка Скорости
+local SpeedBlock = Instance.new("Frame", ScrollFrame)
+SpeedBlock.Size = UDim2.new(0, 340, 0, 50)
+SpeedBlock.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Instance.new("UICorner", SpeedBlock)
+
+local SpeedInp = Instance.new("TextBox", SpeedBlock)
+SpeedInp.Size = UDim2.new(0, 70, 0.7, 0)
+SpeedInp.Position = UDim2.new(0, 10, 0.15, 0)
+SpeedInp.Text = "16"
+SpeedInp.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedInp.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", SpeedInp)
+SpeedInp.FocusLost:Connect(function() targetSpeed = tonumber(SpeedInp.Text) or 16 end)
+
+local SpeedBtn = Instance.new("TextButton", SpeedBlock)
+SpeedBtn.Size = UDim2.new(0, 240, 0.7, 0)
+SpeedBtn.Position = UDim2.new(0, 90, 0.15, 0)
+SpeedBtn.Text = "SPEED: OFF"
+SpeedBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedBtn.TextColor3 = Color3.new(1,1,1)
+SpeedBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", SpeedBtn)
+SpeedBtn.MouseButton1Click:Connect(function()
+    speedEnabled = not speedEnabled
+    SpeedBtn.Text = speedEnabled and "SPEED: ON" or "SPEED: OFF"
+    SpeedBtn.BackgroundColor3 = speedEnabled and Color3.fromRGB(0, 150, 100) or Color3.fromRGB(50, 50, 50)
+end)
+
+-- --- ФУНКЦИИ МАГАЗИНА ---
+local function Buy(shopType, itemName)
+    local args = { [1] = itemName, [2] = 25, [3] = 0, [4] = 0 }
+    local guiName = (shopType == "Basic") and "ShopGui" or "SpecialShopGui"
+    local remote = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild(guiName):WaitForChild("BuyItem")
+    remote:FireServer(unpack(args))
+end
+
+-- СЕКЦИЯ BASIC
+local BasicAll = Instance.new("TextButton", ScrollFrame)
+BasicAll.Size = UDim2.new(0, 340, 0, 60)
+BasicAll.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+BasicAll.Text = "GET ALL ITEMS BASIC"
+BasicAll.Font = Enum.Font.GothamBlack
+BasicAll.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", BasicAll)
+BasicAll.MouseButton1Click:Connect(function()
+    for _, item in pairs(basicItems) do Buy("Basic", item) task.wait(0.1) end
+end)
+
+-- СЕКЦИЯ SPECIAL
+local SpecialAll = Instance.new("TextButton", ScrollFrame)
+SpecialAll.Size = UDim2.new(0, 340, 0, 60)
+SpecialAll.BackgroundColor3 = Color3.fromRGB(150, 0, 200)
+SpecialAll.Text = "GET ALL ITEMS SPECIAL"
+SpecialAll.Font = Enum.Font.GothamBlack
+SpecialAll.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", SpecialAll)
+SpecialAll.MouseButton1Click:Connect(function()
+    for _, item in pairs(specialItems) do Buy("Special", item) task.wait(0.1) end
+end)
+
+-- Генерация кнопок
+for _, v in pairs(basicItems) do
+    local b = Instance.new("TextButton", ScrollFrame)
+    b.Size = UDim2.new(0, 340, 0, 35)
+    b.Text = "BUY BASIC: "..v:upper()
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    b.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function() Buy("Basic", v) end)
+end
+
+for _, v in pairs(specialItems) do
+    local b = Instance.new("TextButton", ScrollFrame)
+    b.Size = UDim2.new(0, 340, 0, 35)
+    b.Text = "BUY SPECIAL: "..v:upper()
+    b.BackgroundColor3 = Color3.fromRGB(60, 40, 60)
+    b.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function() Buy("Special", v) end)
+end
+
+UserInputService.InputBegan:Connect(function(i, g)
+    if not g and i.KeyCode == Enum.KeyCode.Insert then MainFrame.Visible = not MainFrame.Visible end
+end)
