@@ -1,0 +1,170 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local CloseButton = Instance.new("TextButton")
+local ScrollFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+local UserInputService = game:GetService("UserInputService")
+
+-- Списки предметов
+local specialItems = {"BedRockVest", "BlackoutTrap", "BloodyBlade", "BlueOrb", "CrazyCola", "Crudible", "DeadlyCola", "DevilsWings", "Hamburger", "ImpendingDOOM", "KillerFish", "LandMine", "Machete", "MikeHat", "RadioActiveStunStick", "ShadowBlade", "Taser", "ToxicLego", "UNDERGROUNDCROWN", "UpgradedStunStick", "VoidVest"}
+local basicItems = {"EclipseCola", "God's Armor", "HuntingTrap", "Lantern", "LegoBrick", "MedKit", "MilVest", "NVGoggles", "PoliceVest", "RakeTrap", "RegenerationCoil", "RustyTrap", "StopSign", "ToxicBrick", "Tracker", "UVLamp"}
+
+-- [КЛАВИША INSERT ДЛЯ СКРЫТИЯ]
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- Anti-AFK
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+-- GUI Setup
+ScreenGui.Parent = game:GetService("CoreGui")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -225)
+MainFrame.Size = UDim2.new(0, 380, 0, 450)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 20)
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 60)
+Title.Text = "ahh op menu (INS)"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 22
+
+CloseButton.Parent = MainFrame
+CloseButton.Position = UDim2.new(1, -40, 0, 15)
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Text = "X"
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 50)
+CloseButton.TextColor3 = Color3.new(1,1,1)
+CloseButton.Font = Enum.Font.GothamBlack
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(1,0)
+CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+ScrollFrame.Parent = MainFrame
+ScrollFrame.Size = UDim2.new(1, -15, 1, -80)
+ScrollFrame.Position = UDim2.new(0, 7, 0, 70)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 3400)
+ScrollFrame.ScrollBarThickness = 6
+
+UIListLayout.Parent = ScrollFrame
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Padding = UDim.new(0, 12)
+
+local function GetTool(name)
+    local p = game:GetService("Players").LocalPlayer
+    return p.Backpack:FindFirstChild(name) or (p.Character and p.Character:FindFirstChild(name))
+end
+
+-- Функция огромных кнопок атак
+local function CreateAttack(displayName, realToolName)
+    local f = Instance.new("Frame", ScrollFrame)
+    f.Size = UDim2.new(0, 340, 0, 70)
+    f.BackgroundTransparency = 1
+    
+    local m = Instance.new("TextButton", f)
+    m.Size = UDim2.new(0, 240, 1, 0)
+    m.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    m.Text = displayName
+    m.Font = Enum.Font.GothamBlack
+    m.TextSize = 18
+    m.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", m)
+
+    local a = Instance.new("TextButton", f)
+    a.Position = UDim2.new(0, 250, 0, 0)
+    a.Size = UDim2.new(0, 90, 1, 0)
+    a.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    a.Text = "AUTO"
+    a.Font = Enum.Font.GothamBlack
+    a.TextSize = 16
+    a.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", a)
+
+    local on = false
+    a.MouseButton1Click:Connect(function()
+        on = not on
+        a.BackgroundColor3 = on and Color3.fromRGB(0, 255, 200) or Color3.fromRGB(40, 40, 40)
+        a.TextColor3 = on and Color3.new(0,0,0) or Color3.new(1,1,1)
+    end)
+
+    task.spawn(function()
+        while task.wait(0.1) do
+            if not ScreenGui.Parent then break end
+            local item = GetTool(realToolName)
+            m.BackgroundColor3 = item and Color3.fromRGB(0, 180, 70) or Color3.fromRGB(180, 0, 0)
+            if on and item and item:FindFirstChild("Remote11") then item.Remote11:FireServer() end
+        end
+    end)
+end
+
+-- --- СЕКЦИЯ АТАКИ ---
+CreateAttack("IMPENDING DOOM", "ImpendingDOOM")
+CreateAttack("CRUCIBLE", "Crudible")
+CreateAttack("BLUE ORB", "BlueOrb")
+CreateAttack("RADIACTIVE STUN STICK", "RadioActiveStunStick")
+
+-- --- BASIC SHOP ---
+local bAll = Instance.new("TextButton", ScrollFrame)
+bAll.Size = UDim2.new(0, 340, 0, 80)
+bAll.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+bAll.Text = "GET ALL BASIC SHOP"
+bAll.Font = Enum.Font.GothamBlack
+bAll.TextSize = 20
+bAll.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", bAll)
+bAll.MouseButton1Click:Connect(function()
+    for _, v in pairs(basicItems) do game:GetService("ReplicatedStorage").ShopEvent:FireServer(v, 750) task.wait(0.05) end
+end)
+
+for _, v in pairs(basicItems) do
+    local b = Instance.new("TextButton", ScrollFrame)
+    b.Size = UDim2.new(0, 340, 0, 45)
+    b.BackgroundColor3 = Color3.fromRGB(0, 60, 140)
+    b.Text = v:upper()
+    b.Font = Enum.Font.GothamBlack
+    b.TextSize = 14
+    b.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function() game:GetService("ReplicatedStorage").ShopEvent:FireServer(v, 750) end)
+end
+
+-- --- SPECIAL SHOP ---
+local sAll = Instance.new("TextButton", ScrollFrame)
+sAll.Size = UDim2.new(0, 340, 0, 80)
+sAll.BackgroundColor3 = Color3.fromRGB(255, 190, 0)
+sAll.Text = "GET ALL SPECIAL SHOP"
+sAll.Font = Enum.Font.GothamBlack
+sAll.TextSize = 20
+sAll.TextColor3 = Color3.new(0,0,0)
+Instance.new("UICorner", sAll)
+sAll.MouseButton1Click:Connect(function()
+    for _, v in pairs(specialItems) do game:GetService("ReplicatedStorage").BadgeShopEvent:FireServer(v, 3058616646592985, 0, 0) task.wait(0.05) end
+end)
+
+for _, v in pairs(specialItems) do
+    local b = Instance.new("TextButton", ScrollFrame)
+    b.Size = UDim2.new(0, 340, 0, 45)
+    b.BackgroundColor3 = Color3.fromRGB(110, 80, 0)
+    b.Text = v:upper()
+    b.Font = Enum.Font.GothamBlack
+    b.TextSize = 14
+    b.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function() game:GetService("ReplicatedStorage").BadgeShopEvent:FireServer(v, 3058616646592985, 0, 0) end)
+end
+
+-- Отступ в конце
+local p = Instance.new("Frame", ScrollFrame); p.Size = UDim2.new(0, 10, 0, 50); p.BackgroundTransparency = 1
